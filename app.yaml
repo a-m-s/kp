@@ -7,7 +7,7 @@ threadsafe: true
 handlers:
 - url: /
   static_files: main.html
-  upload: static
+  upload: main.html
 
 - url: /stylesheets
   static_dir: stylesheets
