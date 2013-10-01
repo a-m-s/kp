@@ -25,6 +25,10 @@ class Location(ndb.Model):
 
     @classmethod
     def query_bbox(cls, north, east, south, west):
+	# Let's not generate massive queries
+	if west > east + 1 or north > south + 1:
+	    return []
+
 	squares = []
 	x = west
 	# generate the list of geohashes we need to find
@@ -65,6 +69,8 @@ class LocationAPI(webapp2.RequestHandler):
 	    east = float(self.request.get('east'))
 	    north = float(self.request.get('north'))
 	    south = float(self.request.get('south'))
+
+	# TODO: queries for large areas
 	    data = []
 	    for loc in Location.query_bbox(north, east, south, west):
 		data.append({"lon": loc.loc.lon,
