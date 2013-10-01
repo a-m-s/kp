@@ -27,16 +27,21 @@ class Location(ndb.Model):
     def query_bbox(cls, north, east, south, west):
 	squares = []
 	x = west
+	# generate the list of geohashes we need to find
 	while x >= east:
 	    y = north
 	    while y >= south:
 		squares.append(cls.make_geohash_L1(x, y))
 		y -= cls.L1_hashsize
 	    x -= cls.L1_hashsize
+	result = []
 	if len(squares) > 0:
-	    return cls.query(Location.geohash.IN(squares))
-	else:
-	    return []
+	    for loc in cls.query(Location.geohash.IN(squares)):
+		# The geohash might return results just outside the search area
+		if loc.loc.lon <= west and loc.loc.lon >= east \
+		    and loc.loc.lat <= north and loc.loc.lat >= south:
+		    result.append(loc)
+	return result
 
 class LocationAPI(webapp2.RequestHandler):
 
