@@ -2,6 +2,7 @@ import webapp2
 from webapp2_extras import json
 from google.appengine.ext import ndb
 import logging
+import math
 
 class Location(ndb.Model):
     loc = ndb.GeoPtProperty()
@@ -13,38 +14,42 @@ class Location(ndb.Model):
     L1_hashsize = 0.05
 
     @classmethod
-    def make_geohash_L1(cls, lon, lat):
-	# round to nearest 0.05
-	x = round(float(lat)*20, 0)/20
-	y = round(float(lon)*20, 0)/20
-	if x == -0.0:
-	    x = 0.0
-	if y == -0.0:
-	    y = 0.0
-	return str(x) + ":" + str(y)
+    def make_geohash_L1(cls, lat, lon):
+	# round down to multiple of 0.05
+	lat = math.floor(float(lat)*20)/20
+	lon = math.floor(float(lon)*20)/20
+	if lat == -0.0:
+	    lat = 0.0
+	if lon == -0.0:
+	    lon = 0.0
+	return str(lat) + ":" + str(lon)
 
     @classmethod
     def query_bbox(cls, north, east, south, west):
 	# Let's not generate massive queries
-	if west > east + 1 or north > south + 1:
+	if east > west + 1 or north > south + 1:
 	    return []
 
 	squares = []
 	x = west
 	# generate the list of geohashes we need to find
-	while x >= east:
-	    y = north
-	    while y >= south:
-		squares.append(cls.make_geohash_L1(x, y))
-		y -= cls.L1_hashsize
-	    x -= cls.L1_hashsize
+	while x <= east:
+	    y = south
+	    while y <= north:
+		squares.append(cls.make_geohash_L1(y, x))
+		y += cls.L1_hashsize
+	    x += cls.L1_hashsize
 	result = []
 	if len(squares) > 0:
+	    logging.info("squares:" + str(squares))
 	    for loc in cls.query(Location.geohash.IN(squares)):
+		logging.info("loc:" + str(loc))
+		logging.info("{0} {1} {2} {3}".format(east,west,north,south))
 		# The geohash might return results just outside the search area
-		if loc.loc.lon <= west and loc.loc.lon >= east \
+		if loc.loc.lon <= east and loc.loc.lon >= west \
 		    and loc.loc.lat <= north and loc.loc.lat >= south:
 		    result.append(loc)
+	logging.info("result: " + str(result))
 	return result
 
 class LocationAPI(webapp2.RequestHandler):
@@ -65,32 +70,46 @@ class LocationAPI(webapp2.RequestHandler):
     def get(self,id):
 	if id == '':
 	    # search requires parameters
-	    west = float(self.request.get('west'))
-	    east = float(self.request.get('east'))
-	    north = float(self.request.get('north'))
-	    south = float(self.request.get('south'))
+	    west, south, east, north = [float(x) for x in self.request.get('bbox').split(',')]
 
-	# TODO: queries for large areas
+	    # TODO: queries for large areas
 	    data = []
 	    for loc in Location.query_bbox(north, east, south, west):
-		data.append({"lon": loc.loc.lon,
-			     "lat": loc.loc.lat,
-			     "name": loc.name,
-			     "address": loc.address,
-			     "notes": loc.notes})
+		data.append({"type": "Feature",
+			     "geometry": {
+			       "type": "Point",
+			       "coordinates": [loc.loc.lon, loc.loc.lat]
+			     },
+			     "properties": {
+			       "name": loc.name,
+			       "address": loc.address,
+			       "notes": loc.notes
+			     }
+			    })
 
 	else:
 	    # client requested a specific location
 	    key = ndb.Key(urlsafe=id)
 	    loc = key.get()
-	    data = {"id": id,
-		    "lon": loc.loc.lon,
-		    "lat": loc.loc.lat,
-		    "name": loc.name,
-		    "address": loc.address,
-		    "notes": loc.notes}
+	    data = [{"type": "Feature",
+		     "id": id,
+		     "geometry": {
+		       "coordinates": [loc.loc.lon, loc.loc.lat]
+		     },
+		     "properties": {
+		       "name": loc.name,
+		       "address": loc.address,
+		       "notes": loc.notes
+		     }
+		    }]
+
+	data = {"type": "FeatureCollection",
+		"features": data}
+
 	self.response.headers['Content-Type'] = 'application/json'
-	self.response.write(json.encode(data))
+	jsondata = json.encode(data)
+	logging.info("geojson: " + jsondata)
+	self.response.write(jsondata)
 
 api = webapp2.WSGIApplication([
 	 ('/api/v1.0/locations/(.*)', LocationAPI)
