@@ -4,7 +4,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <title>Full Screen Example</title>        
+        <title>Kid's Play Info</title>        
         <link rel="stylesheet" href="stylesheets/style2.css" type="text/css">
         <link rel="stylesheet" href="stylesheets/style1.css" type="text/css">
         <style type="text/css">
@@ -22,28 +22,83 @@
                 z-index: 20000;
                 background-color: white;
                 padding: 0 0.5em 0.5em 0.5em;
+		border-radius: 0.5em;
             }
+
+	    #featureDiv {
+		position: absolute;
+		margin: 0 auto;
+		left: 5%;
+		top: 5%;
+		width: 90%;
+		height: 90%;
+		z-index: 30000;
+		background-color: white;
+		padding: 0.5em;
+		visibility: hidden;
+		border: 2px solid;
+		border-radius: 25px;
+	    }
+
+	[contenteditable]:hover:after {
+	    content: ' click to edit';
+	    font-style: italic;
+	    font-size: 12px;
+	    font-family: sans-serif;
+	    color: #ccc;
+	    .text-stroke(0);
+	}
+
+	[contenteditable]:hover, [contenteditable]:focus {
+	    background: #FFFFD3;
+	}
+
+	[contenteditable]:focus {
+	    padding: 5px;
+	}
+
+	[contenteditable]:focus:after {
+	    content: '';
+	}
+
         </style>
         <script src="http://openlayers.org/api/2.13.1/OpenLayers.js"></script>
     </head>
     <body>
         <div id="map"></div>
 
-          <div id="text">
-              <h1 id="title">Kids Play Info</h1>
+        <div id="text">
+            <h1 id="title">Kids Play Info</h1>
 
-              <div id="tags">
-                css, style, fullscreen, window, margin, padding, scrollbar
-              </div>
+            <div id="tags">
+              css, style, fullscreen, window, margin, padding, scrollbar
+            </div>
 
-              <p id="shortdesc">
+            <p id="shortdesc">
                 Work In Progress
             </p>
 
             <div id="docs">
                 <p>This site is under construction.</p>
             </div>
-            <script src="scripts/main.js"></script>
         </div>
+
+	<div id="featureDiv">
+	    <div style="position:absolute; top: 1em; right: 1em"
+	     onClick="closeFeatureDiv()">
+	      X
+	    </div>
+	    <h1 id="featureName" contenteditable=true></h1>
+	    <h2>Address:</h2>
+	    <span id="featureAddress1" contenteditable=true></span><br>
+	    <span id="featureAddress2" contenteditable=true></span><br>
+	    <span id="featureAddress3" contenteditable=true></span><br>
+	    <span id="featureAddress4" contenteditable=true></span><br>
+	    <span id="featureAddress5" contenteditable=true></span>
+	    <h2>Notes:</h2>
+	    <p id="featureNotes" contenteditable=true></p>
+	</div>
+
+	<script src="scripts/main.js"></script>
     </body>
 </html>
