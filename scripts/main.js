@@ -44,25 +44,16 @@ locs.styleMap = new OpenLayers.StyleMap(style);
 // Location view and edit
 
 var featureDiv = document.getElementById('featureDiv');
-var featureName = document.getElementById('featureName');
-var featureAddress1 = document.getElementById('featureAddress1');
-var featureAddress2 = document.getElementById('featureAddress2');
-var featureAddress3 = document.getElementById('featureAddress3');
-var featureAddress4 = document.getElementById('featureAddress4');
-var featureAddress5 = document.getElementById('featureAddress5');
-var featureNotes = document.getElementById('featureNotes');
-
 var activeLocation = null;
 
 function openFeatureDiv(location) {
     activeLocation = location;
-    featureName.innerHTML = location.attributes.name;
-    featureAddress1.innerHTML = location.attributes.address[0];
-    featureAddress2.innerHTML = location.attributes.address[1];
-    featureAddress3.innerHTML = location.attributes.address[2];
-    featureAddress4.innerHTML = location.attributes.address[3];
-    featureAddress5.innerHTML = location.attributes.address[4];
-    featureNotes.innerHTML = location.attributes.notes;
+
+    var form = document.forms['featureForm'];
+    form['name'].value = location.attributes.name;
+    form['address'].value = location.attributes.address;
+    form['notes'].value = location.attributes.notes;
+
     featureDiv.style.visibility = "visible";
 }
 
@@ -72,6 +63,11 @@ function resetFeatureDiv() {
 
 function closeFeatureDiv() {
     featureDiv.style.visibility = "hidden";
+}
+
+function saveFeature() {
+    // TODO
+    alert("TODO");
 }
 
 

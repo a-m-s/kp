@@ -8,7 +8,7 @@ class Location(ndb.Model):
     loc = ndb.GeoPtProperty()
     geohash = ndb.StringProperty()
     name = ndb.StringProperty()
-    address = ndb.StringProperty(repeated=True)
+    address = ndb.StringProperty()
     notes = ndb.TextProperty()
 
     L1_hashsize = 0.05
@@ -59,11 +59,7 @@ class LocationAPI(webapp2.RequestHandler):
 	loc.loc = ndb.GeoPt(float(self.request.get('latitude')), float(self.request.get('longitude')))
 	loc.geohash = Location.make_geohash_L1(loc.loc.lat, loc.loc.lon)
 	loc.name = self.request.get('name')
-	loc.address = [self.request.get('address1'),
-		       self.request.get('address2'),
-		       self.request.get('address3'),
-		       self.request.get('address4'),
-		       self.request.get('address5')]
+	loc.address = self.request.get('address')
 	loc.notes = self.request.get('notes')
 	loc.put()
 

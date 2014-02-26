@@ -30,8 +30,6 @@
 		margin: 0 auto;
 		left: 5%;
 		top: 5%;
-		width: 90%;
-		height: 90%;
 		z-index: 30000;
 		background-color: white;
 		padding: 0.5em;
@@ -86,17 +84,19 @@
 	<div id="featureDiv">
 	    <div style="position:absolute; top: 1em; right: 1em"
 	     onClick="closeFeatureDiv()">
-	      X
+		X
 	    </div>
-	    <h1 id="featureName" contenteditable=true></h1>
-	    <h2>Address:</h2>
-	    <span id="featureAddress1" contenteditable=true></span><br>
-	    <span id="featureAddress2" contenteditable=true></span><br>
-	    <span id="featureAddress3" contenteditable=true></span><br>
-	    <span id="featureAddress4" contenteditable=true></span><br>
-	    <span id="featureAddress5" contenteditable=true></span>
-	    <h2>Notes:</h2>
-	    <p id="featureNotes" contenteditable=true></p>
+	    <form id="featureForm" onSubmit="return false">
+		<input name="name" style="font-size: 18pt" placeholder="Enter the name here.">
+		<h2>Address:</h2>
+		<textarea name="address" rows=5 cols=50
+			  placeholder="The address is used for searches."></textarea>
+		<h2>Notes:</h2>
+		<textarea name="notes" rows=20 cols=80
+			  placeholder="Description, opening hours, parking, etc."></textarea>
+		<br>
+		<input value="Save" type=button onClick="saveFeature()">
+	    </form>
 	</div>
 
 	<script src="scripts/main.js"></script>
